@@ -7,6 +7,7 @@
 | ADR-003 | Fatturazione: rate progetto incluse per data_prevista | ACCETTATO | 2026-05-15 |
 | ADR-004 | Campi fiscali clienti: solo PEC e SDI (P.IVA già presente nel vecchio DB) | ACCETTATO | 2026-05-15 |
 | ADR-005 | Modulo Progetti: rate libere + step lista semplice (no kanban) | ACCETTATO | 2026-05-15 |
+| ADR-006 | Versionamento: repo Git su GitHub, root in laravel_setup | ACCETTATO | 2026-06-01 |
 
 ---
 
@@ -57,3 +58,13 @@
 **Decisione:** Rate aggiunte manualmente (no schema fisso acconto/SAL/saldo). Step con lista semplice (stato da_fare/in_corso/completato), no kanban drag&drop. Importo progetto sdoppiato: `importo_proposta` + `valore_totale` (= accettato). % e importo rata si calcolano a vicenda via JS lato client.
 **Razionale:** Per pochi progetti con step limitati la lista semplice è più veloce del kanban. Rate libere coprono qualsiasi struttura di pagamento.
 **Conseguenze:** Tabelle `progetti`, `rate_pagamento`, `step_progetto`. Migration `2024_01_04_000001_add_importo_proposta_to_progetti.php` per il campo proposta.
+
+---
+
+## ADR-006 — Versionamento: repo Git su GitHub, root in laravel_setup
+**Data:** 2026-06-01
+**Stato:** ACCETTATO
+**Contesto:** Il progetto era senza controllo di versione: ogni deploy era una copia manuale di file via SCP, senza storico né possibilità di rollback. Emerso dopo il fix di BUG-003.
+**Decisione:** Inizializzato repo Git con root in `laravel_setup` (cartella che contiene il codice modificato + `docs/wiki/`). Remote: `https://github.com/renatoromano-png/gestionale.foodandtech.company`, branch `main`. `.gitignore` esclude vendor, .env, cache, *.bak. La root NON è la cartella `gestionale` superiore, così credenziali SSH, `Manager.bak` e CSV restano fuori dal repo.
+**Razionale:** Storico, rollback e backup off-site senza costi. laravel_setup come root tiene fuori i segreti per costruzione.
+**Conseguenze:** Il deploy resta manuale (SCP+SSH, vedi ADR-001) — Git è per versionamento, non ancora CI/CD. Flusso commit gestito via terminale Windows (mai dal sandbox Cowork per evitare index.lock). Da valutare in futuro un deploy via `git pull` lato server.
